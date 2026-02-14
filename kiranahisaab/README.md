@@ -50,7 +50,7 @@ A modern, user-friendly Django web application designed for Kirana (grocery) sto
 
 1. **Clone the repository**
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/mdamshar/KiranaCalculator
 cd kiranahisaab
 ```
 
