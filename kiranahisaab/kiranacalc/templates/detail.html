@@ -1,0 +1,49 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        Detail info
+    </title>
+      <link rel="stylesheet" href="{% static 'detail.css' %}">
+</head>
+<body>
+    <main class="page">
+        <header class="page-header">
+            <div>
+                <p class="eyebrow">Kirana Hisaab</p>
+                <h1>Detail Information</h1>
+                <p class="sub">Review the full receipt for this customer.</p>
+            </div>
+            <div class="header-actions">
+                <a href="{% url 'contact' %}" class="ghost-btn">Contact</a>
+                <a href="{% url 'all' %}" class="ghost-btn">All Customers</a>
+                <a href="{% url 'kirana' %}" class="primary-btn">Calculator</a>
+            </div>
+        </header>
+
+        <section class="card-container">
+            <div class="card">
+                <div class="card-title">
+                    <h3>{{ item.name }}</h3>
+                    <span class="pill">Receipt</span>
+                </div>
+                <div class="divider"></div>
+                <p><strong>Amount:</strong> {{ item.amount }}</p>
+                <p><strong>Items:</strong>
+                    {% if item.items %}
+                        {{ item.items }}
+                    {% else %}
+                        Not added
+                    {% endif %}
+                </p>
+                <small>Purchased on: {{ item.created_at }}</small>
+            </div>
+        </section>
+    </main>
+
+
+</body>
+</html>

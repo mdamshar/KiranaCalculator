@@ -1,0 +1,262 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kirana Calculator</title>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+</head>
+<body>
+    <main class="page">
+        <header class="hero">
+            <div class="hero-text">
+                <p class="eyebrow">Kirana Hisaab</p>
+                <h1>Welcome to Kirana Calculator</h1>
+                <p class="sub">
+                    Capture customer totals fast, generate receipts, and keep every entry tidy.
+                </p>
+            </div>
+            <div class="hero-card">
+                <h3>How it works</h3>
+                <ol>
+                    <li>Enter customer name</li>
+                    <li>Add products with prices separately</li>
+                    <li>Click 'Add More' for multiple items</li>
+                    <li>Generate receipt instantly</li>
+                </ol>
+            </div>
+        </header>
+
+        <section class="panel">
+            <h2>New Receipt</h2>
+
+            {% if errors %}
+            <div class="alert">
+                <strong>Please fix the following:</strong>
+                <ul>
+                    {% for error in errors %}
+                    <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+            <form action="{% url 'add_data' %}" method="POST" class="calc-form">
+                {% csrf_token %}
+                <div class="field">
+                    <label for="name">Customer name</label>
+                    <input
+                        id="name"
+                        type="text"
+                        name="name"
+                        placeholder="e.g., Asha Patel"
+                        value="{{ form_data.name }}"
+                        required
+                    >
+                </div>
+
+                <div class="products-section">
+                    <label class="section-label">Products & Prices</label>
+                    <div id="productFields">
+                        <div class="product-row">
+                            <div class="field product-field">
+                                <input
+                                    type="text"
+                                    name="product_name[]"
+                                    placeholder="Product name (e.g., Rice)"
+                                    class="product-input"
+                                    required
+                                >
+                            </div>
+                            <div class="field price-field">
+                                <input
+                                    type="number"
+                                    name="product_price[]"
+                                    placeholder="Price (e.g., 100)"
+                                    class="price-input"
+                                    min="0"
+                                    required
+                                >
+                            </div>
+                            <button type="button" class="remove-btn" onclick="removeProduct(this)" style="visibility: hidden;">✕</button>
+                        </div>
+                    </div>
+                    <button type="button" class="add-more-btn" onclick="addProductField()">+ Add More</button>
+                    <p class="hint">Add multiple products and their prices</p>
+                </div>
+
+                <button type="submit" class="primary-btn">Generate receipt</button>
+            </form>
+        </section>
+
+        {% if receipt %}
+        <section class="panel receipt">
+            <h2>Receipt</h2>
+            <div class="receipt-card">
+                <div>
+                    <p class="label">Customer</p>
+                    <p class="value">{{ receipt.name }}</p>
+                </div>
+                <div>
+                    <p class="label">Items</p>
+                    <div class="items-list">
+                        {% for item in receipt.items %}
+                        <p class="item-entry">{{ item }}</p>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div>
+                    <p class="label">Total amount</p>
+                    <p class="value total">₹{{ receipt.total }}</p>
+                </div>
+            </div>
+            
+            <div class="send-receipt-section">
+                <button type="button" class="primary-btn" id="sendReceiptBtn" onclick="showMobileInput()">
+                    📱 Send Receipt
+                </button>
+                
+                <div id="mobileInputSection" class="mobile-input-section" style="display: none;">
+                    <div class="field">
+                        <label for="mobileNumber">Mobile Number</label>
+                        <input 
+                            type="tel" 
+                            id="mobileNumber" 
+                            placeholder="Enter mobile number with country code" 
+                            class="mobile-input"
+                        >
+                        <p class="hint">Example: +919876543210 or 9876543210</p>
+                    </div>
+                    
+                    <div class="send-options">
+                        <button type="button" class="whatsapp-btn" onclick="sendViaWhatsApp()">
+                            <span class="icon">📲</span> Send via WhatsApp
+                        </button>
+                        <button type="button" class="sms-btn" onclick="sendViaSMS()">
+                            <span class="icon">💬</span> Send via SMS
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="successMessage" class="success-message" style="display: none;">
+                    ✅ Receipt sent successfully!
+                </div>
+            </div>
+        </section>
+        
+        <script>
+            const receiptData = {
+                name: "{{ receipt.name }}",
+                items: [{% for item in receipt.items %}"{{ item }}"{% if not forloop.last %}, {% endif %}{% endfor %}],
+                total: "{{ receipt.total }}"
+            };
+            
+            function showMobileInput() {
+                document.getElementById('mobileInputSection').style.display = 'block';
+                document.getElementById('sendReceiptBtn').style.display = 'none';
+            }
+            
+            function formatReceiptMessage() {
+                const itemsList = receiptData.items.join('\n');
+                return `*KIRANA RECEIPT*\n\n` +
+                       `Customer: ${receiptData.name}\n\n` +
+                       `Items:\n${itemsList}\n\n` +
+                       `Total Amount: ₹${receiptData.total}\n\n` +
+                       `Thank you for your business!`;
+            }
+            
+            function getMobileNumber() {
+                let mobile = document.getElementById('mobileNumber').value.trim();
+                if (!mobile) {
+                    alert('Please enter a mobile number');
+                    return null;
+                }
+                // Remove spaces and dashes
+                mobile = mobile.replace(/[\s-]/g, '');
+                // Add country code if not present
+                if (!mobile.startsWith('+')) {
+                    if (mobile.startsWith('91')) {
+                        mobile = '+' + mobile;
+                    } else {
+                        mobile = '+91' + mobile;
+                    }
+                }
+                return mobile;
+            }
+            
+            function sendViaWhatsApp() {
+                const mobile = getMobileNumber();
+                if (!mobile) return;
+                
+                const message = formatReceiptMessage();
+                const whatsappUrl = `https://wa.me/${mobile.replace('+', '')}?text=${encodeURIComponent(message)}`;
+                
+                window.open(whatsappUrl, '_blank');
+                showSuccessMessage();
+            }
+            
+            function sendViaSMS() {
+                const mobile = getMobileNumber();
+                if (!mobile) return;
+                
+                const message = formatReceiptMessage();
+                const smsUrl = `sms:${mobile}?body=${encodeURIComponent(message)}`;
+                
+                window.location.href = smsUrl;
+                showSuccessMessage();
+            }
+            
+            function showSuccessMessage() {
+                document.getElementById('successMessage').style.display = 'block';
+                setTimeout(() => {
+                    document.getElementById('successMessage').style.display = 'none';
+                }, 3000);
+            }
+        </script>
+        {% endif %}
+
+        <script>
+            // Functions for adding/removing product fields
+            function addProductField() {
+                const container = document.getElementById('productFields');
+                const newRow = document.createElement('div');
+                newRow.className = 'product-row';
+                newRow.innerHTML = `
+                    <div class="field product-field">
+                        <input
+                            type="text"
+                            name="product_name[]"
+                            placeholder="Product name (e.g., Dal)"
+                            class="product-input"
+                            required
+                        >
+                    </div>
+                    <div class="field price-field">
+                        <input
+                            type="number"
+                            name="product_price[]"
+                            placeholder="Price (e.g., 200)"
+                            class="price-input"
+                            min="0"
+                            required
+                        >
+                    </div>
+                    <button type="button" class="remove-btn" onclick="removeProduct(this)">\u2715</button>
+                `;
+                container.appendChild(newRow);
+            }
+
+            function removeProduct(button) {
+                const row = button.parentElement;
+                row.remove();
+            }
+        </script>
+
+        <div class="actions">
+            <a href="{% url 'all' %}" class="primary-btn">View All Customers</a>
+            <a href="{% url 'contact' %}" class="ghost-btn">Contact Developer</a>
+        </div>
+    </main>
+</body>
+</html>

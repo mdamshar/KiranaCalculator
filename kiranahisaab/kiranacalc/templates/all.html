@@ -1,0 +1,134 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Customer Details</title>
+
+    <link rel="stylesheet" href="{% static 'all.css' %}">
+</head>
+<body>
+    <main class="page">
+        <header class="page-header">
+            <div>
+                <p class="eyebrow">Kirana Hisaab</p>
+                <h1>All Customer Details</h1>
+                <p class="sub">Browse every saved receipt with quick access to details.</p>
+            </div>
+            <div class="header-actions">
+                <a href="{% url 'contact' %}" class="ghost-btn">Contact</a>
+                <a href="{% url 'kirana' %}" class="primary-btn">Calculator</a>
+            </div>
+        </header>
+
+        <!-- Search and Filter Section -->
+        <section class="panel filter-panel">
+            <form method="GET" action="{% url 'all' %}" class="filter-form">
+                <div class="filter-group">
+                    <div class="search-box">
+                        <input 
+                            type="text" 
+                            name="search" 
+                            placeholder="Search by customer name..." 
+                            value="{{ search_query }}"
+                            class="search-input"
+                        >
+                        <button type="submit" class="search-btn">🔍 Search</button>
+                    </div>
+                    
+                    <div class="date-filters">
+                        <input 
+                            type="date" 
+                            name="from_date" 
+                            value="{{ from_date }}"
+                            class="date-input"
+                            placeholder="From Date"
+                        >
+                        <input 
+                            type="date" 
+                            name="to_date" 
+                            value="{{ to_date }}"
+                            class="date-input"
+                            placeholder="To Date"
+                        >
+                        <button type="submit" class="filter-btn">📅 Filter</button>
+                        <a href="{% url 'all' %}" class="clear-btn">✖ Clear</a>
+                    </div>
+                </div>
+            </form>
+            
+            {% if search_query or from_date or to_date %}
+            <div class="filter-info">
+                <p>
+                    Showing {{ data|length }} result(s)
+                    {% if search_query %} for "{{ search_query }}"{% endif %}
+                    {% if from_date and to_date %} from {{ from_date }} to {{ to_date }}{% endif %}
+                </p>
+            </div>
+            {% endif %}
+        </section>
+
+        <section class="panel">
+            <table>
+                <tr>
+                    <th>S.No</th>
+                    <th>Name</th>
+                    <th>Amount</th>
+                    <th>Date &amp; Time</th>
+                    <th>Actions</th>
+                </tr>
+
+                {% for i in data %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ i.name }}</td>
+                    <td>₹{{ i.amount }}</td>
+                    <td>{{ i.created_at|date:"d M Y, h:i A" }}</td>
+                    <td class="actions-cell">
+                        {% if i.slug %}
+                        <a href="{% url 'detail' i.slug %}" class="action-btn view-btn" title="View Details">👁️ View</a>
+                        <button 
+                            onclick="deleteReceipt('{{ i.slug }}', '{{ i.name }}')"
+                            class="action-btn delete-btn"
+                            title="Delete Receipt"
+                        >
+                            🗑️ Delete
+                        </button>
+                        {% else %}
+                        <span class="no-slug">No details</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="empty">No receipts found. {% if search_query or from_date or to_date %}Try adjusting your filters.{% else %}Add the first one on the calculator page.{% endif %}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </section>
+    </main>
+
+    <script>
+        function deleteReceipt(slug, name) {
+            if (confirm(`Are you sure you want to delete the receipt for "${name}"?\n\nThis action cannot be undone.`)) {
+                // Create a form and submit it
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = `/delete/${slug}/`;
+                
+                // Add CSRF token
+                const csrfToken = document.createElement('input');
+                csrfToken.type = 'hidden';
+                csrfToken.name = 'csrfmiddlewaretoken';
+                csrfToken.value = '{{ csrf_token }}';
+                form.appendChild(csrfToken);
+                
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+    </script>
+
+</body>
+</html>
