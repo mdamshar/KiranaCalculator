@@ -11,13 +11,60 @@ body {
     color: #222;
     line-height: 1.6;
     min-height: 100vh;
-    padding: 20px;
+    padding: 0;
+}
+
+/* USER NAVBAR */
+.user-navbar {
+    background: white;
+    padding: 12px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.user-icon {
+    font-size: 20px;
+}
+
+.username {
+    font-size: 14px;
+}
+
+.logout-btn {
+    padding: 8px 20px;
+    background: #ef4444;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.logout-btn:hover {
+    background: #dc2626;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
 }
 
 /* PAGE LAYOUT */
 .page {
     max-width: 800px;
     margin: 0 auto;
+    padding: 20px;
 }
 
 /* HERO */

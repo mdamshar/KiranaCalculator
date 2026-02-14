@@ -11,13 +11,14 @@ body {
     color: #222;
     line-height: 1.6;
     min-height: 100vh;
-    padding: 20px;
+    padding: 0;
 }
 
 /* PAGE LAYOUT */
 .page {
     max-width: 1100px;
     margin: 0 auto;
+    padding: 20px;
 }
 
 /* PAGE HEADER */

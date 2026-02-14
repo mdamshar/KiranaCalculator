@@ -8,8 +8,18 @@
         Detail info
     </title>
       <link rel="stylesheet" href="{% static 'detail.css' %}">
+      <link rel="stylesheet" href="{% static 'style.css' %}">
 </head>
 <body>
+    <!-- User Navbar -->
+    <nav class="user-navbar">
+        <div class="user-info">
+            <span class="user-icon">👤</span>
+            <span class="username">{{ user.username }}</span>
+        </div>
+        <a href="{% url 'logout' %}" class="logout-btn">Logout</a>
+    </nav>
+    
     <main class="page">
         <header class="page-header">
             <div>
