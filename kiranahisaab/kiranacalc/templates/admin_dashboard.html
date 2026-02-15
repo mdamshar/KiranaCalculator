@@ -1,0 +1,317 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Kirana Calculator</title>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+    <style>
+        .admin-navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 16px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .admin-navbar h2 {
+            margin: 0;
+            font-size: 24px;
+        }
+        
+        .admin-navbar .admin-logout {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .admin-navbar .admin-logout:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .admin-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 32px 20px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-left: 4px solid #667eea;
+        }
+        
+        .stat-card.users {
+            border-left-color: #667eea;
+        }
+        
+        .stat-card.receipts {
+            border-left-color: #22c55e;
+        }
+        
+        .stat-card.amount {
+            border-left-color: #f59e0b;
+        }
+        
+        .stat-label {
+            color: #64748b;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+        
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #1e293b;
+        }
+        
+        .admin-section {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        
+        .section-header h3 {
+            margin: 0;
+            font-size: 20px;
+            color: #1e293b;
+        }
+        
+        .search-bar {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .search-bar input {
+            padding: 8px 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        
+        .search-bar button {
+            padding: 8px 16px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .search-bar button:hover {
+            background: #5568d3;
+        }
+        
+        .users-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .users-table thead {
+            background: #f8fafc;
+        }
+        
+        .users-table th {
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #64748b;
+            border-bottom: 2px solid #e2e8f0;
+            font-size: 14px;
+        }
+        
+        .users-table td {
+            padding: 16px 12px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .users-table tbody tr:hover {
+            background: #f8fafc;
+        }
+        
+        .user-link {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .user-link:hover {
+            color: #5568d3;
+        }
+        
+        .action-btn {
+            display: inline-block;
+            padding: 6px 12px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+        
+        .action-btn:hover {
+            background: #5568d3;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .badge.admin {
+            background: #fcd34d;
+            color: #92400e;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #64748b;
+        }
+        
+        .empty-state p {
+            margin: 0;
+        }
+        
+        .messages {
+            margin-bottom: 24px;
+        }
+        
+        .message {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+        
+        .message.error {
+            background: #fee2e2;
+            color: #dc2626;
+            border: 1px solid #fca5a5;
+        }
+        
+        .message.success {
+            background: #dcfce7;
+            color: #22c55e;
+            border: 1px solid #86efac;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-navbar">
+        <h2>🔐 Admin Dashboard</h2>
+        <a href="{% url 'admin_logout' %}" class="admin-logout">Logout</a>
+    </div>
+    
+    <div class="admin-container">
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+            <div class="message {% if message.tags %}{{ message.tags }}{% endif %}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        <!-- Statistics Cards -->
+        <div class="stats-grid">
+            <div class="stat-card users">
+                <div class="stat-label">Total Users</div>
+                <div class="stat-value">{{ total_users }}</div>
+            </div>
+            
+            <div class="stat-card receipts">
+                <div class="stat-label">Total Receipts</div>
+                <div class="stat-value">{{ total_receipts }}</div>
+            </div>
+            
+            <div class="stat-card amount">
+                <div class="stat-label">Total Amount</div>
+                <div class="stat-value">₹{{ total_amount }}</div>
+            </div>
+        </div>
+        
+        <!-- Users Section -->
+        <div class="admin-section">
+            <div class="section-header">
+                <h3>All Users</h3>
+                <form class="search-bar" method="GET">
+                    <input type="text" name="search" placeholder="Search by username or email..." value="{{ search_query }}">
+                    <button type="submit">Search</button>
+                </form>
+            </div>
+            
+            {% if users %}
+            <table class="users-table">
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Status</th>
+                        <th>Received Receipts</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td>
+                            <strong>{{ user.username }}</strong>
+                        </td>
+                        <td>{{ user.email|default:"N/A" }}</td>
+                        <td>
+                            {% if user.is_superuser %}
+                            <span class="badge admin">ADMIN</span>
+                            {% else %}
+                            <span style="color: #22c55e;">Active</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ user.receipts.count }}</td>
+                        <td>
+                            <a href="{% url 'admin_user_detail' user.id %}" class="action-btn">View Details</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="empty-state">
+                <p>No users found matching your search.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

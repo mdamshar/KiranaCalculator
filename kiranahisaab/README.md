@@ -8,6 +8,8 @@ A modern, user-friendly Django web application designed for Kirana (grocery) sto
 
 ## ✨ Features
 
+### 👥  Multi-user support with authentication
+
 ### 🧾 Receipt Generation
 - **Dynamic Product Entry**: Add multiple products with separate name and price inputs
 - **Add More Button**: Dynamically add unlimited product rows
@@ -175,7 +177,6 @@ kiranahisaab/
 
 - [ ] PDF receipt generation
 - [ ] Email receipt functionality
-- [ ] Multi-user support with authentication
 - [ ] Inventory management
 - [ ] Sales analytics and reports
 - [ ] Print receipt functionality

@@ -14,5 +14,11 @@ urlpatterns = [
     path('all/<slug:slug>/', views.detail, name='detail'),
     path('delete/<slug:slug>/', views.delete_receipt, name='delete_receipt'),
     path('contact/', views.contact, name='contact'),
+    
+    # Hidden Admin URLs
+    path('admin/login/', views.admin_login, name='admin_login'),
+    path('admin/dashboard/', views.admin_dashboard, name='admin_dashboard'),
+    path('admin/user/<int:user_id>/', views.admin_user_detail, name='admin_user_detail'),
+    path('admin/logout/', views.admin_logout, name='admin_logout'),
 ]
 

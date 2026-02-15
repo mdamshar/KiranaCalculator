@@ -199,3 +199,84 @@ def delete_receipt(request, slug):
         item = get_object_or_404(calc, slug=slug, user=request.user)
         item.delete()
     return redirect('all')
+# Admin Panel Views (Hidden Admin Login)
+def admin_login(request):
+    """Hidden admin login page - only for superusers"""
+    if request.user.is_authenticated and request.user.is_superuser:
+        return redirect('admin_dashboard')
+    
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            if user.is_superuser:
+                auth_login(request, user)
+                messages.success(request, f'Admin login successful!')
+                return redirect('admin_dashboard')
+            else:
+                messages.error(request, 'Access denied. Only admin can access this page.')
+        else:
+            messages.error(request, 'Invalid credentials.')
+    
+    return render(request, 'admin_login.html')
+
+def admin_dashboard(request):
+    """Admin dashboard - shows all users and their data"""
+    if not request.user.is_authenticated or not request.user.is_superuser:
+        messages.error(request, 'Unauthorized access. Admin login required.')
+        return redirect('admin_login')
+    
+    # Get all users
+    users = User.objects.all()
+    
+    # Get summary statistics
+    total_users = users.count()
+    total_receipts = calc.objects.count()
+    total_amount = sum(obj.amount for obj in calc.objects.all())
+    
+    # Pagination and search
+    search_query = request.GET.get('search', '')
+    if search_query:
+        users = users.filter(username__icontains=search_query) | users.filter(email__icontains=search_query)
+    
+    context = {
+        'users': users,
+        'total_users': total_users,
+        'total_receipts': total_receipts,
+        'total_amount': total_amount,
+        'search_query': search_query,
+    }
+    
+    return render(request, 'admin_dashboard.html', context)
+
+def admin_user_detail(request, user_id):
+    """Admin view - shows all receipts and details for a specific user"""
+    if not request.user.is_authenticated or not request.user.is_superuser:
+        messages.error(request, 'Unauthorized access.')
+        return redirect('admin_login')
+    
+    user = get_object_or_404(User, pk=user_id)
+    receipts = calc.objects.filter(user=user).order_by('-created_at')
+    
+    # Calculate statistics for this user
+    total_receipts = receipts.count()
+    total_amount = sum(obj.amount for obj in receipts)
+    avg_amount = int(total_amount / total_receipts) if total_receipts > 0 else 0
+    
+    context = {
+        'user': user,
+        'receipts': receipts,
+        'total_receipts': total_receipts,
+        'total_amount': total_amount,
+        'avg_amount': avg_amount,
+    }
+    
+    return render(request, 'admin_user_detail.html', context)
+
+def admin_logout(request):
+    """Admin logout"""
+    auth_logout(request)
+    messages.success(request, 'Admin logout successful.')
+    return redirect('admin_login')

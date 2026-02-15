@@ -1,0 +1,294 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Details - Kirana Calculator Admin</title>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+    <style>
+        .admin-navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 16px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .admin-navbar h2 {
+            margin: 0;
+            font-size: 24px;
+        }
+        
+        .admin-navbar .admin-logout {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .admin-navbar .admin-logout:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .admin-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 32px 20px;
+        }
+        
+        .breadcrumb {
+            margin-bottom: 24px;
+        }
+        
+        .breadcrumb a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .breadcrumb a:hover {
+            color: #5568d3;
+        }
+        
+        .user-header {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+        }
+        
+        .user-info h2 {
+            margin: 0 0 12px 0;
+            color: #1e293b;
+            font-size: 28px;
+        }
+        
+        .user-details {
+            color: #64748b;
+            line-height: 1.8;
+        }
+        
+        .user-details p {
+            margin: 8px 0;
+        }
+        
+        .user-stats {
+            display: flex;
+            gap: 24px;
+        }
+        
+        .stat {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .stat-label {
+            color: #64748b;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 4px;
+        }
+        
+        .receipts-section {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 24px;
+        }
+        
+        .receipts-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .receipts-table thead {
+            background: #f8fafc;
+        }
+        
+        .receipts-table th {
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #64748b;
+            border-bottom: 2px solid #e2e8f0;
+            font-size: 14px;
+        }
+        
+        .receipts-table td {
+            padding: 16px 12px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .receipts-table tbody tr:hover {
+            background: #f8fafc;
+        }
+        
+        .receipt-name {
+            color: #667eea;
+            font-weight: 600;
+        }
+        
+        .amount {
+            color: #22c55e;
+            font-weight: 600;
+        }
+        
+        .items-preview {
+            color: #64748b;
+            font-size: 13px;
+            margin-top: 4px;
+            max-width: 300px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #64748b;
+        }
+        
+        .empty-state p {
+            margin: 0;
+        }
+        
+        .back-btn {
+            display: inline-block;
+            padding: 8px 16px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-bottom: 24px;
+        }
+        
+        .back-btn:hover {
+            background: #5568d3;
+        }
+        
+        .date-small {
+            font-size: 12px;
+            color: #94a3b8;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-navbar">
+        <h2>🔐 Admin Dashboard</h2>
+        <a href="{% url 'admin_logout' %}" class="admin-logout">Logout</a>
+    </div>
+    
+    <div class="admin-container">
+        <a href="{% url 'admin_dashboard' %}" class="back-btn">← Back to Dashboard</a>
+        
+        <!-- User Header Section -->
+        <div class="user-header">
+            <div class="user-info">
+                <h2>{{ user.username }}</h2>
+                <div class="user-details">
+                    <p><strong>Email:</strong> {{ user.email|default:"Not provided" }}</p>
+                    <p><strong>Member Since:</strong> {{ user.date_joined|date:"M d, Y" }}</p>
+                    {% if user.first_name or user.last_name %}
+                    <p><strong>Full Name:</strong> {{ user.get_full_name }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="user-stats">
+                <div class="stat">
+                    <div class="stat-value">{{ total_receipts }}</div>
+                    <div class="stat-label">Receipts</div>
+                </div>
+                
+                <div class="stat">
+                    <div class="stat-value">₹{{ total_amount }}</div>
+                    <div class="stat-label">Total Amount</div>
+                </div>
+                
+                {% if total_receipts > 0 %}
+                <div class="stat">
+                    <div class="stat-value">₹{{ avg_amount|default:"0" }}</div>
+                    <div class="stat-label">Avg Receipt</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Receipts Section -->
+        <div class="receipts-section">
+            <h3 class="section-title">User Receipts & Records ({{ total_receipts }})</h3>
+            
+            {% if receipts %}
+            <table class="receipts-table">
+                <thead>
+                    <tr>
+                        <th>Receipt Name</th>
+                        <th>Items</th>
+                        <th>Amount</th>
+                        <th>Created On</th>
+                        <th>Last Updated</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for receipt in receipts %}
+                    <tr>
+                        <td>
+                            <div class="receipt-name">{{ receipt.name }}</div>
+                        </td>
+                        <td>
+                            <div class="items-preview" title="{{ receipt.items }}">
+                                {{ receipt.items|truncatewords:8 }}
+                            </div>
+                        </td>
+                        <td>
+                            <span class="amount">₹{{ receipt.amount }}</span>
+                        </td>
+                        <td>
+                            <div>{{ receipt.created_at|date:"M d, Y" }}</div>
+                            <div class="date-small">{{ receipt.created_at|time:"h:i A" }}</div>
+                        </td>
+                        <td>
+                            <div>{{ receipt.updated_at|date:"M d, Y" }}</div>
+                            <div class="date-small">{{ receipt.updated_at|time:"h:i A" }}</div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="empty-state">
+                <p>This user has no receipts yet.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>
